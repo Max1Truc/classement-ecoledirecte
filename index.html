@@ -214,7 +214,7 @@
         oReq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         oReq.setRequestHeader("Accept-Language", "fr-FR,fr;q=0.5");
         oReq.setRequestHeader("Accept", "application/json, text/plain, */*");
-        //oReq.send(`data={\n    "token": "${ecdtoken}"\n}`);
+        oReq.send(`data={\n    "token": "${ecdtoken}"\n}`);
       }
 
       function logout() {
