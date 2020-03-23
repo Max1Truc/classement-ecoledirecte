@@ -124,7 +124,6 @@
       function login() {
         let user = userInput.value.replace(/"/g, '\\"');
         let password = passwordInput.value.replace(/"/g, '\\"');
-        passwordInput.value = "";
 
         var oReq = new XMLHttpRequest();
         oReq.addEventListener("readystatechange", () => {
@@ -132,6 +131,7 @@
             if (oReq.status === 200) {
               var data = JSON.parse(oReq.responseText);
               if (data.code == "200") {
+                passwordInput.value = "";
                 localStorage.setItem("ecdtoken", data.token);
                 localStorage.setItem("account", data.data.accounts[0].id)
                 updateView();
