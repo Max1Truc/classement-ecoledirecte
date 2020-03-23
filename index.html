@@ -133,7 +133,30 @@
               if (data.code == "200") {
                 passwordInput.value = "";
                 localStorage.setItem("ecdtoken", data.token);
-                localStorage.setItem("account", data.data.accounts[0].id)
+                console.dir(data.data.accounts)
+                for (account of data.data.accounts) {
+                  if (account.typeCompte == "E") {
+                    localStorage.setItem("account", account.id)
+                    break
+                  } else if (account.typeCompte == "1") {
+                    var eleves = account.profile.eleves;
+                    var id = false;
+
+                    if (eleves.length > 0) {
+                      for (eleve of eleves) {
+                        if (eleve.id) {
+                          id = eleve.id;
+                          break
+                        }
+                      }
+                    }
+
+                    if (id) {
+                      localStorage.setItem("account", id)
+                      break
+                    }
+                  }
+                }
                 updateView();
                 rang.innerText = "Chargement en cours...";
                 updateRang();
@@ -172,7 +195,11 @@
               if (data.code == "200") {
                 donnees_classement = []
                 for (trimestre of data.data.periodes) {
-                  donnees_classement.push(trimestre.periode + ": " + (trimestre.ensembleMatieres.rang || "?") + " / " + (trimestre.ensembleMatieres.effectif || "?"))
+                  donnees_classement.push(trimestre.periode + ": " + (
+                    trimestre.ensembleMatieres.rang || "?"
+                  ) + " / " + (
+                    trimestre.ensembleMatieres.effectif || "?"
+                  ))
                 }
                 localStorage.setItem("donnees_classement", donnees_classement.join("\n"));
                 updateView();
@@ -187,7 +214,7 @@
         oReq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         oReq.setRequestHeader("Accept-Language", "fr-FR,fr;q=0.5");
         oReq.setRequestHeader("Accept", "application/json, text/plain, */*");
-        oReq.send(`data={\n    "token": "${ecdtoken}"\n}`);
+        //oReq.send(`data={\n    "token": "${ecdtoken}"\n}`);
       }
 
       function logout() {
@@ -197,20 +224,20 @@
 
       function updateView() {
         var ecdtoken = localStorage.getItem("ecdtoken")
-          if (ecdtoken && ecdtoken != "undefined") {
-            loginForm.style.display = "none";
-            mainMenu.style.display = "block";
-          } else {
-            loginForm.style.display = "block";
-            mainMenu.style.display = "none";
-          }
-          rang.innerText = localStorage.getItem("donnees_classement")
+        if (ecdtoken && ecdtoken != "undefined") {
+          loginForm.style.display = "none";
+          mainMenu.style.display = "block";
+        } else {
+          loginForm.style.display = "block";
+          mainMenu.style.display = "none";
         }
+        rang.innerText = localStorage.getItem("donnees_classement")
+      }
 
-        submit.addEventListener("click", login)
-        logoutButton.addEventListener("click", logout)
-        updateView();
-        updateRang();
+      submit.addEventListener("click", login)
+      logoutButton.addEventListener("click", logout)
+      updateView();
+      updateRang();
     </script>
   </body>
 
