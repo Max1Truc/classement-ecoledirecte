@@ -138,7 +138,7 @@
                 rang.innerText = "Chargement en cours...";
                 updateRang();
               } else {
-                alert(data.message)
+                alert("Message d'EcoleDirecte: " + data.message)
               }
             } else {
               if (oReq.status == 0) {
@@ -177,7 +177,7 @@
                 localStorage.setItem("donnees_classement", donnees_classement.join("\n"));
                 updateView();
               } else {
-                alert(data.message)
+                alert("Message d'EcoleDirecte: " + data.message)
               }
             }
           }
