@@ -170,13 +170,12 @@
             if (oReq.status === 200) {
               var data = JSON.parse(oReq.responseText);
               if (data.code == "200") {
+                donnees_classement = []
                 for (trimestre of data.data.periodes) {
-                  if (trimestre.cloture) {
-                    localStorage.setItem("rang", trimestre.ensembleMatieres.rang || "?");
-                    localStorage.setItem("effectif", trimestre.ensembleMatieres.effectif || "?")
-                  }
-                  updateView();
+                  donnees_classement.push(trimestre.periode + ": " + (trimestre.ensembleMatieres.rang || "?") + " / " + (trimestre.ensembleMatieres.effectif || "?"))
                 }
+                localStorage.setItem("donnees_classement", donnees_classement.join("\n"));
+                updateView();
               } else {
                 alert(data.message)
               }
@@ -205,9 +204,7 @@
             loginForm.style.display = "block";
             mainMenu.style.display = "none";
           }
-          var rangInt = localStorage.getItem("rang"),
-            effectif = localStorage.getItem("effectif")
-          rang.innerText = rangInt + " / " + effectif
+          rang.innerText = localStorage.getItem("donnees_classement")
         }
 
         submit.addEventListener("click", login)
