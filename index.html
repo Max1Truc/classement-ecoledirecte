@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+
+  <head>
+    <meta charset="utf-8">
+    <title>EcoleDirecte Classement</title>
+    <style>
+      body {
+        font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+        font-size: 14px;
+        color: #0f8fd1;
+      }
+      #loginform,
+      #mainMenu {
+        width: 30%;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+      div#mainMenu {
+        display: none;
+      }
+      p#rang:hover {
+        background-color: lightgrey;
+      }
+      p#rang {
+        background-color: white;
+        padding: 2em;
+        color: black;
+        border: 1px solid grey;
+        text-align: center;
+      }
+      button {
+        box-sizing: border-box;
+        overflow: visible;
+        text-transform: none;
+        border-radius: 4px;
+        border: 1px solid #46b8da;
+        user-select: none;
+        touch-action: manipulation;
+        cursor: pointer;
+        font-weight: 400;
+        text-align: center;
+        white-space: nowrap;
+        color: #fff;
+        display: block;
+        width: 100%;
+        position: relative;
+        margin: 2vh 0;
+        padding: 10px;
+        background: #0f8fd1;
+        font-size: 20px;
+      }
+      .text-center {
+        text-align: center;
+      }
+      #loginHeader {
+        margin: 100px 0 5vh;
+        display: block;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      #subform {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      input {
+        font-family: Roboto,sans-serif;
+        box-sizing: border-box;
+        display: block;
+        width: 100%;
+        margin: 4vh 0;
+        font-size: 15px;
+        border-radius: 2px;
+        line-height: 1;
+        padding: 5px;
+        height: 50px;
+        border: 1px solid rgba(36,28,21,.3);
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="loginform">
+      <header id="loginHeader" class="text-center">
+        <h1>EcoleDirecte Classement</h1>
+      </header>
+      <div id="subform">
+        <h2 class="text-center">Connectez-vous</h2>
+        <p><input type="text" id="identifiant" placeholder="Identifiant" autofocus=""></p>
+        <p><input type="password" id="password" placeholder="Mot de passe"></p>
+        <button id="submit">Connexion</button>
+      </div>
+    </div>
+
+    <div id="mainMenu">
+      <h2 class="text-center">Classement général</h2>
+      <p id="rang">? / ?</p>
+      <button id="logout">Log out</button>
+    </div>
+
+    <script>
+      var loginForm = document.getElementById("loginform"),
+        mainMenu = document.getElementById("mainMenu"),
+        rang = document.getElementById("rang"),
+        submit = document.getElementById("submit"),
+        userInput = document.getElementById("identifiant"),
+        passwordInput = document.getElementById("password"),
+        logoutButton = document.getElementById("logout");
+
+      function login() {
+        let user = userInput.value.replace(/"/g, '\\"');
+        let password = passwordInput.value.replace(/"/g, '\\"');
+
+        var oReq = new XMLHttpRequest();
+        oReq.addEventListener("readystatechange", () => {
+          if (oReq.readyState === XMLHttpRequest.DONE) {
+            if (oReq.status === 200) {
+              var data = JSON.parse(oReq.responseText);
+              if (data.code == "200") {
+                localStorage.setItem("ecdtoken", data.token);
+                localStorage.setItem("account", data.data.accounts[0].id)
+                updateView();
+                rang.innerText = "Chargement en cours...";
+                updateRang();
+              } else {
+                alert(data.message)
+              }
+            } else {
+              if (oReq.status == 0) {
+                alert("Vous êtes hors-ligne !")
+              }
+            }
+          }
+        })
+        oReq.addEventListener("error", console.dir)
+        oReq.open("POST", "https://api.ecoledirecte.com/v3/login.awp", true);
+        oReq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        oReq.setRequestHeader("Accept-Language", "fr-FR,fr;q=0.5");
+        oReq.setRequestHeader("Accept", "application/json, text/plain, */*");
+        oReq.send(`data={\n    "identifiant": "${user}",\n    "motdepasse": "${password}"\n}`);
+
+        return false;
+      }
+
+      function updateRang() {
+        var ecdtoken = localStorage.getItem("ecdtoken")
+        var account_id = localStorage.getItem("account")
+
+        if (!(ecdtoken && account_id))
+          return;
+
+        var oReq = new XMLHttpRequest();
+        oReq.addEventListener("readystatechange", () => {
+          if (oReq.readyState === XMLHttpRequest.DONE) {
+            if (oReq.status === 200) {
+              var data = JSON.parse(oReq.responseText);
+              if (data.code == "200") {
+                for (trimestre of data.data.periodes) {
+                  if (trimestre.cloture) {
+                    localStorage.setItem("rang", trimestre.ensembleMatieres.rang || "?");
+                    localStorage.setItem("effectif", trimestre.ensembleMatieres.effectif || "?")
+                  }
+                  updateView();
+                }
+              } else {
+                alert(data.message)
+              }
+            }
+          }
+        })
+        oReq.addEventListener("error", alert)
+        oReq.open("POST", "https://api.ecoledirecte.com/v3/eleves/" + account_id + "/notes.awp?verbe=get&", true);
+        oReq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        oReq.setRequestHeader("Accept-Language", "fr-FR,fr;q=0.5");
+        oReq.setRequestHeader("Accept", "application/json, text/plain, */*");
+        oReq.send(`data={\n    "token": "${ecdtoken}"\n}`);
+      }
+
+      function logout() {
+        localStorage.clear()
+        updateView();
+      }
+
+      function updateView() {
+        var ecdtoken = localStorage.getItem("ecdtoken")
+          if (ecdtoken && ecdtoken != "undefined") {
+            loginForm.style.display = "none";
+            mainMenu.style.display = "block";
+          } else {
+            loginForm.style.display = "block";
+            mainMenu.style.display = "none";
+          }
+          var rangInt = localStorage.getItem("rang"),
+            effectif = localStorage.getItem("effectif")
+          rang.innerText = rangInt + " / " + effectif
+        }
+
+        submit.addEventListener("click", login)
+        logoutButton.addEventListener("click", logout)
+        updateView();
+        updateRang();
+    </script>
+  </body>
+
+</html>
