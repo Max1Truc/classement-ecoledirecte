@@ -4,6 +4,7 @@
   <head>
     <meta charset="utf-8">
     <title>EcoleDirecte Classement</title>
+    <meta content="width=device-width,initial-scale=1" name="viewport">
     <style>
       body {
         font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
@@ -12,7 +13,7 @@
       }
       #loginform,
       #mainMenu {
-        width: 30%;
+        width: 33%;
         position: fixed;
         top: 50%;
         left: 50%;
@@ -78,6 +79,15 @@
         padding: 5px;
         height: 50px;
         border: 1px solid rgba(36,28,21,.3);
+      }
+      @media only screen and (max-width: 600px) {
+        #loginform,
+        #mainMenu {
+          width: 66%;
+          top: 0;
+          left: 50%;
+          transform: translateX(-50%);
+        }
       }
     </style>
   </head>
