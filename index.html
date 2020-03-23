@@ -133,19 +133,20 @@
               if (data.code == "200") {
                 passwordInput.value = "";
                 localStorage.setItem("ecdtoken", data.token);
-                console.dir(data.data.accounts)
                 for (account of data.data.accounts) {
                   if (account.typeCompte == "E") {
                     localStorage.setItem("account", account.id)
+                    localStorage.setItem("name", account.prenom + " " + account.nom)
                     break
                   } else if (account.typeCompte == "1") {
                     var eleves = account.profile.eleves;
-                    var id = false;
+                    var id = false, name = "";
 
                     if (eleves.length > 0) {
                       for (eleve of eleves) {
                         if (eleve.id) {
                           id = eleve.id;
+                          name = eleve.prenom + " " + eleve.nom
                           break
                         }
                       }
@@ -153,12 +154,12 @@
 
                     if (id) {
                       localStorage.setItem("account", id)
+                      localStorage.setItem("name", name)
                       break
                     }
                   }
                 }
                 updateView();
-                rang.innerText = "Chargement en cours...";
                 updateRang();
               } else {
                 alert("Message d'EcoleDirecte: " + data.message)
@@ -193,7 +194,7 @@
             if (oReq.status === 200) {
               var data = JSON.parse(oReq.responseText);
               if (data.code == "200") {
-                donnees_classement = []
+                donnees_classement = ["Elève: " + localStorage.getItem("name")]
                 for (trimestre of data.data.periodes) {
                   donnees_classement.push(trimestre.periode + ": " + (
                     trimestre.ensembleMatieres.rang || "?"
