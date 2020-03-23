@@ -109,7 +109,7 @@
     <div id="mainMenu">
       <h2 class="text-center">Classement général</h2>
       <p id="rang">? / ?</p>
-      <button id="logout">Log out</button>
+      <button id="logout">Déconnexion</button>
     </div>
 
     <script>
@@ -124,6 +124,7 @@
       function login() {
         let user = userInput.value.replace(/"/g, '\\"');
         let password = passwordInput.value.replace(/"/g, '\\"');
+        passwordInput.value = "";
 
         var oReq = new XMLHttpRequest();
         oReq.addEventListener("readystatechange", () => {
